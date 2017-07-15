@@ -24,5 +24,15 @@ namespace ConvertSyncPhotosWpfApp
         {
             InitializeComponent();
         }
+
+        private void btnStart_Click(object sender, RoutedEventArgs e)
+        {
+            // click on Start
+        }
+
+        private void btnStop_Click(object sender, RoutedEventArgs e)
+        {
+            // ckick on Stop
+        }
     }
 }
