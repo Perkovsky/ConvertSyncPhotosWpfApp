@@ -20,6 +20,14 @@ namespace ConvertSyncPhotosWpfApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly Watcher watcher = new Watcher();
+
+        private void SetButtonsAvailability(bool isPressStart = true)
+        {
+            btnStart.IsEnabled = !isPressStart;
+            btnStop.IsEnabled = isPressStart;
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -27,12 +35,28 @@ namespace ConvertSyncPhotosWpfApp
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
-            // click on Start
+            if (watcher.Start())
+            {
+                SetButtonsAvailability();
+            }
+            else
+            {
+                MessageBox.Show("Goto \"settings.xml\" and specify settings.");
+            }
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
-            // ckick on Stop
+            if (watcher == null)
+            {
+                MessageBox.Show("Watcher did not started!");
+                return;
+            }
+            else
+            {
+                watcher.Stop();
+            }
+            SetButtonsAvailability(false);
         }
     }
 }
