@@ -25,12 +25,18 @@ namespace ConvertSyncPhotosWpfApp
 
             // watcherDirectory
             string newWatcherDirectory = @settings.Fields.WatcherDirectory;
-            if (!File.Exists(newWatcherDirectory)) return false;
+            if (!Directory.Exists(newWatcherDirectory)) return false;
             if (watcherDirectory != newWatcherDirectory || watcher == null)
             {
                 watcherDirectory = newWatcherDirectory;
                 watcher = new FileSystemWatcher(watcherDirectory);
                 watcher.IncludeSubdirectories = true;
+
+                //BUG: на созданный файл создается как минимум два события (Created-Changed), а то и три (Created-Changed-Changed)
+                // после применения NotifyFilter, вроде бы работает, необходимо тщательное тестирование
+                watcher.NotifyFilter = NotifyFilters.LastWrite;
+                watcher.Filter = "*.*"; //TODO: filter
+
                 watcher.Created += WatcherChanged;
                 watcher.Changed += WatcherChanged;
                 //watcher.Deleted += WatcherChanged;
