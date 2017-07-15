@@ -9,7 +9,7 @@ namespace ConvertSyncPhotosWpfApp
 {
     public class Watcher
     {
-        private readonly string LOG_FILE_NAME = string.Format(@"{0}\log.txt", GeneralMethods.GetCurrentDirectory());
+        private readonly string LOG_FILE_NAME = string.Format(@"{0}\log.txt", FileConverting.GetCurrentDirectory());
 
         private string watcherDirectory;
         private string convertDirectory;
@@ -33,8 +33,7 @@ namespace ConvertSyncPhotosWpfApp
                 watcher.IncludeSubdirectories = true;
 
                 //BUG: на созданный файл создается как минимум два события (Created-Changed), а то и три (Created-Changed-Changed)
-                // после применения NotifyFilter, вроде бы работает, необходимо тщательное тестирование
-                watcher.NotifyFilter = NotifyFilters.LastWrite;
+                //watcher.NotifyFilter = NotifyFilters.LastWrite;
                 watcher.Filter = "*.*"; //TODO: filter
 
                 watcher.Created += WatcherChanged;
@@ -64,9 +63,11 @@ namespace ConvertSyncPhotosWpfApp
 
         private void WatcherChanged(object sender, FileSystemEventArgs e)
         {
-            Log(string.Format("{0} -> {1}", e.Name, e.ChangeType));
-
-            //TODO: copy file-photo to preview, convert file-photo into preview
+            Log(string.Format("{0} -> {1}", Path.GetFileName(e.FullPath), e.ChangeType));
+            
+            //NOTE: возможно необходимо будет сделать групповое копирование и конвертирование фото 
+            //TODO: async - await
+            FileConverting.Convert(this, e.FullPath, string.Format(@"{0}{1}", convertDirectory, Path.GetFileName(e.FullPath)));
         }
 
         public bool Start()
@@ -87,11 +88,11 @@ namespace ConvertSyncPhotosWpfApp
             watcher.EnableRaisingEvents = false;
         }
 
-        private void Log(string log)
+        public void Log(string msg)
         {
             if (!logger) return;
 
-            writer.WriteLine("{0} :: {1}", DateTime.Now.ToString(), log);
+            writer.WriteLine("{0} :: {1}", DateTime.Now.ToString(), msg);
             writer.Flush();
         }
     }
