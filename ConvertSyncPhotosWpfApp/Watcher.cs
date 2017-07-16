@@ -64,8 +64,9 @@ namespace ConvertSyncPhotosWpfApp
         private void WatcherChanged(object sender, FileSystemEventArgs e)
         {
             Log(string.Format("{0} -> {1}", Path.GetFileName(e.FullPath), e.ChangeType));
-            
-            //NOTE: возможно необходимо будет сделать групповое копирование и конвертирование фото 
+
+            //NOTE: это важно! продумать правильную логику приложения
+            // возможно нужна будет оптимизация - групповое копирование и конвертирование фото 
             //TODO: async - await
             FileConverting.Convert(this, e.FullPath, string.Format(@"{0}{1}", convertDirectory, Path.GetFileName(e.FullPath)));
         }
