@@ -11,7 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.IO;
 
 namespace ConvertSyncPhotosWpfApp
 {
@@ -31,6 +31,14 @@ namespace ConvertSyncPhotosWpfApp
         public MainWindow()
         {
             InitializeComponent();
+
+            watcher.Changed += (s, e) =>
+            {
+                string msg = string.Format("{0} -> {1}", Path.GetFileName(e.FullPath), e.ChangeType);
+                Dispatcher.Invoke(
+                    new Action(() => tbLog.AppendText(string.Format("{0} :: {1}{2}", DateTime.Now.ToString(), msg, Environment.NewLine)))
+                );
+            };
         }
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
@@ -57,6 +65,11 @@ namespace ConvertSyncPhotosWpfApp
                 watcher.Stop();
             }
             SetButtonsAvailability(false);
+        }
+
+        private void btnClearLog_Click(object sender, RoutedEventArgs e)
+        {
+            tbLog.Clear();
         }
     }
 }

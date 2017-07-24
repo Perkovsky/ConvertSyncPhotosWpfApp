@@ -10,6 +10,9 @@ namespace ConvertSyncPhotosWpfApp
     public class Watcher
     {
         private readonly string LOG_FILE_NAME = string.Format(@"{0}\log.txt", FileConverting.GetCurrentDirectory());
+        public string LogFileName { get { return LOG_FILE_NAME; } }
+
+        public event FileSystemEventHandler Changed = null;
 
         private string watcherDirectory;
         private string convertDirectory;
@@ -64,6 +67,8 @@ namespace ConvertSyncPhotosWpfApp
         private void WatcherChanged(object sender, FileSystemEventArgs e)
         {
             Log(string.Format("{0} -> {1}", Path.GetFileName(e.FullPath), e.ChangeType));
+
+            Changed.Invoke(sender, e);
 
             //NOTE: это важно! продумать правильную логику приложения
             // возможно нужна будет оптимизация - групповое копирование и конвертирование фото 
