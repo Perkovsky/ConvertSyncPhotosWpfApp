@@ -10,7 +10,6 @@ namespace ConvertSyncPhotosWpfApp
     public class Watcher
     {
         private readonly string LOG_FILE_NAME = string.Format(@"{0}\log.txt", FileConverting.GetCurrentDirectory());
-        public string LogFileName { get { return LOG_FILE_NAME; } }
 
         public event FileSystemEventHandler Changed = null;
 
