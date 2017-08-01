@@ -38,7 +38,7 @@ namespace ConvertSyncPhotosWpfApp
                 //watcher.NotifyFilter = NotifyFilters.LastWrite;
                 watcher.Filter = "*.*"; //TODO: filter
 
-                watcher.Created += WatcherChanged;
+                //watcher.Created += WatcherChanged;
                 watcher.Changed += WatcherChanged;
                 //watcher.Deleted += WatcherChanged;
                 //watcher.Renamed += WatcherChanged;
