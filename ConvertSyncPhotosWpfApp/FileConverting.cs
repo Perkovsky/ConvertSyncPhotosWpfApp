@@ -26,12 +26,12 @@ namespace ConvertSyncPhotosWpfApp
             try
             {
                 File.Copy(sourceFileName, destFileName, true);
-                watcher.Log(string.Format("{0} -> {1}", Path.GetFileName(sourceFileName), "Copied"));
+                watcher.Log(sourceFileName, "Copied");
             }
             catch (Exception e)
             {
-                watcher.Log(string.Format("{0} -> {1}", Path.GetFileName(sourceFileName), "Copy error:"));
-                watcher.Log(e.ToString());
+                //BUG: необходимо дождаться завершения копирования большего файла
+                watcher.Log(sourceFileName, "Copy error:" + Environment.NewLine + e.ToString());
                 return;
             }
 

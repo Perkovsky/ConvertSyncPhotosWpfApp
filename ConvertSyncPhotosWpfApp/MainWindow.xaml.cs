@@ -18,9 +18,18 @@ namespace ConvertSyncPhotosWpfApp
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, ILog
     {
-        private readonly Watcher watcher = new Watcher();
+        private readonly Watcher watcher;
+        private bool needToLog;
+        public bool NeedToLog { set { needToLog = value; } }
+
+        public void Log(string fileName, string typeAction)
+        {
+            Dispatcher.Invoke(new Action(() =>
+                tbLog.AppendText(Logger.FormatMsg(fileName, typeAction + Environment.NewLine)))
+            );
+        }
 
         private void SetButtonsAvailability(bool isPressStart = true)
         {
@@ -31,14 +40,7 @@ namespace ConvertSyncPhotosWpfApp
         public MainWindow()
         {
             InitializeComponent();
-
-            watcher.Changed += (s, e) =>
-            {
-                string msg = string.Format("{0} -> {1}", Path.GetFileName(e.FullPath), e.ChangeType);
-                Dispatcher.Invoke(
-                    new Action(() => tbLog.AppendText(string.Format("{0} :: {1}{2}", DateTime.Now.ToString(), msg, Environment.NewLine)))
-                );
-            };
+            watcher = new Watcher(this);
         }
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
@@ -67,9 +69,6 @@ namespace ConvertSyncPhotosWpfApp
             SetButtonsAvailability(false);
         }
 
-        private void btnClearLog_Click(object sender, RoutedEventArgs e)
-        {
-            tbLog.Clear();
-        }
+        private void btnClearLog_Click(object sender, RoutedEventArgs e) => tbLog.Clear();
     }
 }
