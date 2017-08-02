@@ -9,6 +9,7 @@ namespace ConvertSyncPhotosWpfApp
 {
     public class Watcher
     {
+        private Copier copier = new Copier();
         private ILog logger;
         private string watcherDirectory;
         private string convertDirectory;
@@ -17,7 +18,7 @@ namespace ConvertSyncPhotosWpfApp
         // because the file is written to disk in parts, i.e. event "Changed" is triggered several times to the row instead
         // of one by fixing the last name of the file being processed and the modification date, we will cut off fake events
         private string lastFileName;
-        private DateTime lastFileDate;
+        private DateTime lastFileDateModified;
 
         public Watcher(ILog logger)
         {
@@ -38,27 +39,30 @@ namespace ConvertSyncPhotosWpfApp
                 watcher = new FileSystemWatcher(watcherDirectory);
                 watcher.IncludeSubdirectories = true;
                 watcher.NotifyFilter = NotifyFilters.LastWrite;
-                watcher.Filter = "*.*"; //TODO: filter
+                watcher.Filter = "*.*";
 
-                watcher.Changed += (object sender, FileSystemEventArgs e) =>
+                watcher.Changed += async (object sender, FileSystemEventArgs e) =>
                 {
                     //BUG: на созданный файл создается как минимум два события (Created-Changed), а то и три (Created-Changed-Changed)
-                    // ignore fake evens
+                    // ignore fake events
                     string currentFileName = e.FullPath;
+                    DateTime currentFileDateModified = File.GetLastWriteTime(currentFileName); // File.GetCreationTime(currentFileName)
                     if (!string.IsNullOrEmpty(lastFileName)
                         && lastFileName.Equals(currentFileName))
-                        //TODO: LastDateChanged
+                        //TODO: добавить условие по последней дате модификации или обнулять lastFileName после завершения копирования
                         //&&
                         return;
 
                     lastFileName = currentFileName;
+                    //lastFileDateModified = currentFileDateModified;
 
                     Log(currentFileName, e.ChangeType.ToString());
 
                     //NOTE: это важно! продумать правильную логику приложения
                     // возможно нужна будет оптимизация - групповое копирование и конвертирование фото 
-                    //TODO: async - await
-                    FileConverting.Convert(this, currentFileName, string.Format(@"{0}{1}", convertDirectory, Path.GetFileName(currentFileName)));
+                    //FileConverting.Convert(this, currentFileName, string.Format(@"{0}{1}", convertDirectory, Path.GetFileName(currentFileName)));
+                    await copier.CopyToAsync(this, currentFileName, string.Format(@"{0}{1}", convertDirectory, Path.GetFileName(currentFileName)));
+                    //BUG: необходимо дождаться завершения копирования большего файла
                 };
             }
 

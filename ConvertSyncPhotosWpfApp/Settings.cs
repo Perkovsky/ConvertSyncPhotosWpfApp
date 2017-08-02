@@ -19,7 +19,7 @@ namespace ConvertSyncPhotosWpfApp
     /// </summary>
     public class Settings
     {
-        private readonly string FILE_NAME = string.Format(@"{0}\settings.xml", FileConverting.GetCurrentDirectory());
+        private readonly string FILE_NAME = string.Format(@"{0}\settings.xml", GeneralMethods.GetCurrentDirectory());
         private SettingsFields fields;
         public SettingsFields Fields { get { return fields; } }
 

@@ -11,7 +11,7 @@ namespace ConvertSyncPhotosWpfApp
 
     public class Logger : ILog
     {
-        private readonly string LOG_FILE_NAME = string.Format(@"{0}\log.txt", FileConverting.GetCurrentDirectory());
+        private readonly string LOG_FILE_NAME = string.Format(@"{0}\log.txt", GeneralMethods.GetCurrentDirectory());
 
         private bool needToLog;
         private FileInfo file;

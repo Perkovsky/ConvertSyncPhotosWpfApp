@@ -55,7 +55,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="FileConverting.cs" />
+    <Compile Include="Copier.cs" />
+    <Compile Include="GeneralMethods.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Watcher.cs" />
