@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace ConvertSyncPhotosWpfApp
 {
-    public class Watcher
+    public class Watcher: IDisposable
     {
         private Copier copier = new Copier();
         private ILog logger;
@@ -16,13 +12,29 @@ namespace ConvertSyncPhotosWpfApp
         private FileSystemWatcher watcher;
 
         // because the file is written to disk in parts, i.e. event "Changed" is triggered several times to the row instead
-        // of one by fixing the last name of the file being processed and the modification date, we will cut off fake events
+        // of one by fixing the last name of the file being processed, we will cut off fake events
         private string lastFileName;
-        private DateTime lastFileDateModified;
 
         public Watcher(ILog logger)
         {
             this.logger = logger;
+        }
+
+        private bool IsDirectory(string fileName)
+        {
+            // event "watcher.Changed" also works to delete the file / directory several times, 
+            // even when the file / directory is already deleted
+            try
+            {
+                return File.GetAttributes(fileName).HasFlag(FileAttributes.Directory);
+            }
+            catch (FileNotFoundException) { return true; }
+            catch (DirectoryNotFoundException) { return true; }
+            catch (Exception e)
+            {
+                Log(fileName, "IsDirectory error:" + Environment.NewLine + e.ToString());
+                return true;
+            }
         }
 
         private bool SetVariables()
@@ -38,32 +50,9 @@ namespace ConvertSyncPhotosWpfApp
                 watcherDirectory = newWatcherDirectory;
                 watcher = new FileSystemWatcher(watcherDirectory);
                 watcher.IncludeSubdirectories = true;
-                watcher.NotifyFilter = NotifyFilters.LastWrite;
+                //watcher.NotifyFilter = NotifyFilters.LastWrite;
                 watcher.Filter = "*.*";
-
-                watcher.Changed += async (object sender, FileSystemEventArgs e) =>
-                {
-                    //BUG: на созданный файл создается как минимум два события (Created-Changed), а то и три (Created-Changed-Changed)
-                    // ignore fake events
-                    string currentFileName = e.FullPath;
-                    DateTime currentFileDateModified = File.GetLastWriteTime(currentFileName); // File.GetCreationTime(currentFileName)
-                    if (!string.IsNullOrEmpty(lastFileName)
-                        && lastFileName.Equals(currentFileName))
-                        //TODO: добавить условие по последней дате модификации или обнулять lastFileName после завершения копирования
-                        //&&
-                        return;
-
-                    lastFileName = currentFileName;
-                    //lastFileDateModified = currentFileDateModified;
-
-                    Log(currentFileName, e.ChangeType.ToString());
-
-                    //NOTE: это важно! продумать правильную логику приложения
-                    // возможно нужна будет оптимизация - групповое копирование и конвертирование фото 
-                    //FileConverting.Convert(this, currentFileName, string.Format(@"{0}{1}", convertDirectory, Path.GetFileName(currentFileName)));
-                    await copier.CopyToAsync(this, currentFileName, string.Format(@"{0}{1}", convertDirectory, Path.GetFileName(currentFileName)));
-                    //BUG: необходимо дождаться завершения копирования большего файла
-                };
+                watcher.Changed += OnChanged;
             }
 
             // convertDirectory
@@ -72,6 +61,21 @@ namespace ConvertSyncPhotosWpfApp
             logger.NeedToLog = settings.Fields.Logger;
 
             return true;
+        }
+
+        private async void OnChanged(object sender, FileSystemEventArgs e)
+        {
+            // ignore fake events
+            string currentFileName = e.FullPath;
+            if (IsDirectory(currentFileName)) return;
+            if (!string.IsNullOrEmpty(lastFileName) && lastFileName.Equals(currentFileName)) return;
+            lastFileName = currentFileName;
+            //BUG: если из 1С выгружать опять последний файл, то событие не сработает
+
+            Log(currentFileName, e.ChangeType.ToString());
+
+            await copier.CopyToAsync(this, currentFileName, watcherDirectory, convertDirectory);
+            //BUG: необходимо дождаться завершения копирования большего файла
         }
 
         public bool Start()
@@ -93,5 +97,10 @@ namespace ConvertSyncPhotosWpfApp
         }
 
         public void Log(string fileName, string typeAction) => logger.Log(fileName, typeAction);
+
+        public void Dispose()
+        {
+            watcher.Changed -= OnChanged;
+        }
     }
 }
