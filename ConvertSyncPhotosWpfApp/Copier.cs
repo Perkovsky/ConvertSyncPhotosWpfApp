@@ -4,6 +4,9 @@ using System.IO;
 
 namespace ConvertSyncPhotosWpfApp
 {
+    /// <summary>
+    /// This class is needed to copy file from source directory to destination directory
+    /// </summary>
     public class Copier
     {
         /// <summary>
@@ -21,7 +24,16 @@ namespace ConvertSyncPhotosWpfApp
             }
         }
 
-        public async Task CopyToAsync(Watcher watcher, string sourceFullFileName, string sourceDirectoryName, string destDirectoryName)
+        /// <summary>
+        /// The Method copies source file asynchronously from source root directory to destination root directory 
+        /// keeping structure of directories
+        /// </summary>
+        /// <param name="watcher"></param>
+        /// <param name="sourceFullFileName">Source full file name</param>
+        /// <param name="sourceDirectoryName">Source root directory full path</param>
+        /// <param name="destDirectoryName">Destination root directory full path</param>
+        /// <returns>Destination full file name or null if was error</returns>
+        public async Task<string> CopyToAsync(Watcher watcher, string sourceFullFileName, string sourceDirectoryName, string destDirectoryName)
         {
             string sourceFileName = Path.GetFileName(sourceFullFileName);
             string sourceFullParentDirectory = Path.GetDirectoryName(sourceFullFileName);
@@ -50,12 +62,13 @@ namespace ConvertSyncPhotosWpfApp
                     }
                 }
                 watcher.Log(sourceFullFileName, "Copied");
+                return destFileName;
             }
             //catch (UnauthorizedAccessException) { }
             catch (Exception e)
             {
                 watcher.Log(sourceFullFileName, "Copy error:" + Environment.NewLine + e.ToString());
-                return;
+                return null;
             }
         }
     }

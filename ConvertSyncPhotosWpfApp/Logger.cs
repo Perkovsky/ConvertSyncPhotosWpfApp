@@ -3,12 +3,18 @@ using System.IO;
 
 namespace ConvertSyncPhotosWpfApp
 {
+    /// <summary>
+    /// This interface is required for DI
+    /// </summary>
     public interface ILog
     {
         bool NeedToLog { set; }
         void Log(string fileName, string typeAction);
     }
 
+    /// <summary>
+    /// This class is needed to log the operation of the service
+    /// </summary>
     public class Logger : ILog
     {
         private readonly string LOG_FILE_NAME = string.Format(@"{0}\log.txt", GeneralMethods.GetCurrentDirectory());

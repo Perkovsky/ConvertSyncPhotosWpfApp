@@ -3,6 +3,9 @@ using System.IO;
 
 namespace ConvertSyncPhotosWpfApp
 {
+    /// <summary>
+    /// This class is needed to monitor changes in the directory
+    /// </summary>
     public class Watcher: IDisposable
     {
         private Copier copier = new Copier();
@@ -74,7 +77,7 @@ namespace ConvertSyncPhotosWpfApp
 
             Log(currentFileName, e.ChangeType.ToString());
 
-            await copier.CopyToAsync(this, currentFileName, watcherDirectory, convertDirectory);
+            string destFileName = await copier.CopyToAsync(this, currentFileName, watcherDirectory, convertDirectory);
             //BUG: необходимо дождаться завершения копирования большего файла
         }
 
