@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using ImageProcessor.Imaging.Formats;
 using ImageProcessor;
+using ImageProcessor.Plugins.WebP.Imaging.Formats;
 
 namespace ConvertSyncPhotosWpfApp
 {
@@ -14,7 +15,7 @@ namespace ConvertSyncPhotosWpfApp
     {
         private readonly int WIDTH = 200;
         private readonly int HEIGHT = 150;
-        private readonly int QUALITY = 70;
+        private readonly int QUALITY = 40;
 
         /// <summary>
         /// The method waits for the file to be created
@@ -53,23 +54,19 @@ namespace ConvertSyncPhotosWpfApp
 
             IsFileBusy(sourceFullFileName);
 
-            //TODO: необходимо добиться лучшей компресcии картинки
-            // Пример: 
-            // оригинал   : 156.2 КБ
-            // превью YII :   3.7 КБ
-            // превью C#  :   8.9 КБ
             try
             {
                 byte[] photoBytes = File.ReadAllBytes(sourceFullFileName);
                 // Format is automatically detected though can be changed.
                 ISupportedImageFormat format = new JpegFormat { Quality = QUALITY };
+                //ISupportedImageFormat format = new WebPFormat { Quality = QUALITY }; // see: https://ru.wikipedia.org/wiki/WebP
                 Size size = new Size(WIDTH, 0);
                 using (MemoryStream inStream = new MemoryStream(photoBytes))
                 {
-                    // Initialize the ImageFactory using the overload to preserve EXIF metadata.
-                    using (ImageFactory imageFactory = new ImageFactory(preserveExifData: true))
+                    // initialize the ImageFactory using the overload to preserve EXIF metadata.
+                    using (ImageFactory imageFactory = new ImageFactory(/*preserveExifData: true*/))
                     {
-                        // Load, resize, set the format and quality and save an image.
+                        // load, resize, set the format and quality and save an image.
                         imageFactory.Load(inStream)
                                     .Resize(size)
                                     .Format(format)
