@@ -7,6 +7,7 @@ namespace ConvertSyncPhotosWpfApp
     /// <summary>
     /// This class is needed to copy file from source directory to destination directory
     /// </summary>
+    [Obsolete("Use only class Converter")]
     public class Copier
     {
         /// <summary>

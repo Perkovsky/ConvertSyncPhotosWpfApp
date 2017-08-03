@@ -8,11 +8,11 @@ namespace ConvertSyncPhotosWpfApp
     /// </summary>
     public class Watcher: IDisposable
     {
-        private Copier copier = new Copier();
-        private ILog logger;
         private string watcherDirectory;
         private string convertDirectory;
         private FileSystemWatcher watcher;
+        private Converter converter = new Converter();
+        private ILog logger;
 
         // because the file is written to disk in parts, i.e. event "Changed" is triggered several times to the row instead
         // of one by fixing the last name of the file being processed, we will cut off fake events
@@ -77,8 +77,7 @@ namespace ConvertSyncPhotosWpfApp
 
             Log(currentFileName, e.ChangeType.ToString());
 
-            string destFileName = await copier.CopyToAsync(this, currentFileName, watcherDirectory, convertDirectory);
-            //BUG: необходимо дождаться завершения копирования большего файла
+            await converter.ResizeAsync(this, currentFileName, watcherDirectory, convertDirectory);
         }
 
         public bool Start()
