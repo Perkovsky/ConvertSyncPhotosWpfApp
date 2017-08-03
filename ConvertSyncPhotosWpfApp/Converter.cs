@@ -33,6 +33,7 @@ namespace ConvertSyncPhotosWpfApp
 
         public void Resize(Watcher watcher, string sourceFullFileName, string sourceDirectoryName, string destDirectoryName)
         {
+            #region get destFileName
             string sourceFileName = Path.GetFileName(sourceFullFileName);
             string sourceFullParentDirectory = Path.GetDirectoryName(sourceFullFileName);
 
@@ -48,9 +49,15 @@ namespace ConvertSyncPhotosWpfApp
 
             //// create destination directory if exists
             //if (!Directory.Exists(destFullParentDirectory)) Directory.CreateDirectory(destFullParentDirectory);
+            #endregion
 
             IsFileBusy(sourceFullFileName);
 
+            //TODO: необходимо добиться лучшей компресcии картинки
+            // Пример: 
+            // оригинал   : 156.2 КБ
+            // превью YII :   3.7 КБ
+            // превью C#  :   8.9 КБ
             try
             {
                 byte[] photoBytes = File.ReadAllBytes(sourceFullFileName);
@@ -69,11 +76,11 @@ namespace ConvertSyncPhotosWpfApp
                                     .Save(destFileName);
                     }
                 }
-                watcher.Log(destFileName, $"Resized to {WIDTH}x{HEIGHT}");
+                watcher.Log(destFileName, $"Copied & Resized to {WIDTH}x{HEIGHT}");
             }
             catch (Exception e)
             {
-                watcher.Log(destFileName, $"Resize to {WIDTH}x{HEIGHT} error:" + Environment.NewLine + e.ToString());
+                watcher.Log(destFileName, $"Copy & Resize to {WIDTH}x{HEIGHT} error:" + Environment.NewLine + e.ToString());
             }
         }
 
