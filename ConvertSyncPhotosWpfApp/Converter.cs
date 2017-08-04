@@ -57,7 +57,7 @@ namespace ConvertSyncPhotosWpfApp
             try
             {
                 byte[] photoBytes = File.ReadAllBytes(sourceFullFileName);
-                // Format is automatically detected though can be changed.
+                // format is automatically detected though can be changed.
                 ISupportedImageFormat format = new JpegFormat { Quality = QUALITY };
                 //ISupportedImageFormat format = new WebPFormat { Quality = QUALITY }; // see: https://ru.wikipedia.org/wiki/WebP
                 Size size = new Size(WIDTH, 0);
